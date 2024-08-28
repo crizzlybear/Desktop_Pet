@@ -1,24 +1,63 @@
 #include <windows.h>
+
 #define TIMER_ID 1
 int xPos = 50;
 int yPos = 50;
+HBITMAP hBitmap = NULL;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-   
+    static HDC hdcMem = NULL;
+    static HBITMAP hOldBitmap = NULL;
     //int y = 0;
     switch (msg) {
         case WM_CREATE: {
             SetTimer(hwnd, TIMER_ID, 2000, NULL);
+            hBitmap = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dog_profileBMP.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
+            if (!hBitmap) {
+                MessageBox(NULL,L"Bitmap", L"Err", MB_OK);
+            }
+
             break;
         }
         case WM_PAINT: {
-            PAINTSTRUCT ps;
+            /*PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
             HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
             RECT rect = { 50, 50, 200, 150 };
             FillRect(hdc, &rect, hBrush);
             DeleteObject(hBrush);
             EndPaint(hwnd, &ps);
+            break;*/
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+
+
+            if (hBitmap) {
+                // Create a memory device context
+                HDC hdcMem = CreateCompatibleDC(hdc);
+                if (hdcMem) {
+                    // Select the bitmap into the memory device context
+                    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
+
+                    // Get the bitmap dimensions
+                    BITMAP bitmap;
+                    GetObject(hBitmap, sizeof(bitmap), &bitmap);
+
+                    // Draw the bitmap
+                    BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+                    // Cleanup
+                    SelectObject(hdcMem, hOldBitmap);
+                    DeleteDC(hdcMem);
+                }
+            }
+
+
+
+
+
+            EndPaint(hwnd, &ps);
             break;
+
         }
         case WM_LBUTTONDOWN: {
             // Close the window on left mouse button click
@@ -39,6 +78,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
         case WM_DESTROY:
             KillTimer(hwnd, TIMER_ID);
+            if (hBitmap) {
+                DeleteObject(hBitmap);
+            }
             PostQuitMessage(0);//deletes Msg
             break;
         default:
