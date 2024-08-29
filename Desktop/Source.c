@@ -5,9 +5,10 @@ int yPos = 50;
 #define TIMER_ID 1
 HDC hMemDC;         // Memory device context
 HBITMAP hBitmap1;   // First bitmap
-HBITMAP hBitmap2;   // Second bitmap
-HBITMAP hCurrentBitmap; // Currently selected bitmap
+/*HBITMAP hBitmap2;*/   // Second bitmap
+/*HBITMAP hCurrentBitmap;*/ // Currently selected bitmap
 HBITMAP hOldBitmap; // Old bitmap in memory DC
+int xx = 0;
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -21,8 +22,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Load and select bitmaps
         
-        hBitmap1 = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dog_profileBMP.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
-        hBitmap2 = (HBITMAP)LoadImage(NULL, L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dog_profileBMP2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
+        hBitmap1 = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dogsprite.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
+        //hBitmap2 = (HBITMAP)LoadImage(NULL, L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dog_profileBMP2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
 
         // Select the first bitmap into the memory DC
         hOldBitmap = SelectObject(hMemDC, hBitmap1);
@@ -36,24 +37,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps); //BeginPaint: Prepares the window for painting and retrieves a device context (HDC).
-
-        // Draw the current bitmap
-        //BitBlt is copying the pixels from the source device context(hMemDC) to the destination device context(hdc) for the rectangle that needs to be redrawn
-        //BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, 0, 0, SRCCOPY);
-        //transparentblt required msimg32.lib in linker
-                //DrawTransparentBitmap(hdc, hBitmap2, 0, 0);
-     
-       /* HBITMAP oldHB = (HBITMAP)SelectObject(hMemDC, hCurrentBitmap);
-        BITMAP bm;
-        GetObject(hCurrentBitmap, sizeof(BITMAP), &bm);*/
   
-        BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, 0, 0, SRCCOPY);
-        /*     TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
-            hMemDC, 0, 0, bm.bmWidth,bm.bmHeight, RGB(255,0,255));*/
-       
-       /* TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
-            hMemDC, 0, 0, bm.bmWidth, bm.bmHeight, RGB(255, 0, 255));
-        SelectObject(hMemDC, oldHB);*/
+        BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, xx, 0, SRCCOPY);
+   
         
         EndPaint(hwnd, &ps);
         
@@ -67,18 +53,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             
             SetWindowPos(hwnd, HWND_TOP, xPos, 50, 100, 100, SWP_NOZORDER | SWP_NOSIZE);
             // Toggle between bitmaps
-            if (hCurrentBitmap == hBitmap1) {
-                hCurrentBitmap = hBitmap2;
+           
+            if (xx == 0) {
+               xx=xx+100;
             }
             else {
-                hCurrentBitmap = hBitmap1;
+                xx = 0;
             }
-
-            // Update memory DC with the new bitmap
-            HDC hdc3 = GetDC(hwnd);
-            SelectObject(hMemDC, hCurrentBitmap); // Select the new bitmap
-            ReleaseDC(hwnd, hdc3);
-
+            
             // Trigger a repaint
             InvalidateRect(hwnd, NULL, TRUE);
             break;
@@ -96,7 +78,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         SelectObject(hMemDC, hOldBitmap); // Restore the old bitmap
         DeleteDC(hMemDC); // Delete the memory DC
         DeleteObject(hBitmap1);
-        DeleteObject(hBitmap2);
+      /*  DeleteObject(hBitmap2);*/
         PostQuitMessage(0);
         break;
 
