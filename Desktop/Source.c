@@ -1,39 +1,23 @@
 #include <windows.h>
 
 int xPos = 50;
+int yPos = 50;
 #define TIMER_ID 1
 HDC hMemDC;         // Memory device context
 HBITMAP hBitmap1;   // First bitmap
 HBITMAP hBitmap2;   // Second bitmap
 HBITMAP hCurrentBitmap; // Currently selected bitmap
 HBITMAP hOldBitmap; // Old bitmap in memory DC
-void DrawTransparentBitmap(HDC hdcDest, HBITMAP hBitmap, int xDest, int yDest) {
-    // Create a compatible memory DC
-    HDC hdcMem = CreateCompatibleDC(hdcDest);
 
-    // Select the bitmap into the memory DC
-    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
-
-    // Get bitmap dimensions
-    BITMAP bm;
-    GetObject(hBitmap, sizeof(BITMAP), &bm);
-
-    // Use TransparentBlt to draw the bitmap with magenta as transparent
-    TransparentBlt(hdcDest, xDest, yDest, bm.bmWidth, bm.bmHeight,
-        hdcMem, 0, 0, bm.bmWidth, bm.bmHeight,
-        RGB(255,0,255));
-
-    // Clean up
-    SelectObject(hdcMem, hOldBitmap);
-    DeleteDC(hdcMem);
-}
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
+    
     switch (uMsg) {
     case WM_CREATE:
     {
-        HDC hdc = GetDC(hwnd); // Get the window device context
-        hMemDC = CreateCompatibleDC(hdc); // Create a compatible memory DC
+        HDC hdc2 = GetDC(hwnd); // Get the window device context
+        hMemDC = CreateCompatibleDC(hdc2); // Create a compatible memory DC
 
         // Load and select bitmaps
         
@@ -43,31 +27,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         // Select the first bitmap into the memory DC
         hOldBitmap = SelectObject(hMemDC, hBitmap1);
 
-        ReleaseDC(hwnd, hdc); // Release the window DC
+        ReleaseDC(hwnd, hdc2); // Release the window DC
 
         SetTimer(hwnd, TIMER_ID, 500, NULL); // Set up a timer
         break;
     }
-    case WM_PAINT:
+    case WM_PAINT: // Triggered when the window needs to be repainted. This happens when the window is first shown, when it is resized, or when InvalidateRect is called.
     {
         PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hwnd, &ps);
+        HDC hdc = BeginPaint(hwnd, &ps); //BeginPaint: Prepares the window for painting and retrieves a device context (HDC).
 
         // Draw the current bitmap
         //BitBlt is copying the pixels from the source device context(hMemDC) to the destination device context(hdc) for the rectangle that needs to be redrawn
         //BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, 0, 0, SRCCOPY);
         //transparentblt required msimg32.lib in linker
+                //DrawTransparentBitmap(hdc, hBitmap2, 0, 0);
+     
+        HBITMAP oldHB = (HBITMAP)SelectObject(hMemDC, hCurrentBitmap);
+        BITMAP bm;
+        GetObject(hCurrentBitmap, sizeof(BITMAP), &bm);
+   /*     TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
+            hMemDC, 0, 0, bm.bmWidth,bm.bmHeight, RGB(255,0,255));*/
        
-       DrawTransparentBitmap(hdc, hBitmap2, 0, 0);
-      
-        
+        TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
+            hMemDC, 0, 0, bm.bmWidth, bm.bmHeight, RGB(255, 0, 255));
+        SelectObject(hMemDC, oldHB);
         
         EndPaint(hwnd, &ps);
+        
         break;
     }
     case WM_TIMER:
         if (wParam == TIMER_ID) {
-            xPos = xPos + 10;
+            if (xPos < desktopWidth) {
+                xPos = xPos + 10;
+            }
+            
             SetWindowPos(hwnd, HWND_TOP, xPos, 50, 100, 100, SWP_NOZORDER | SWP_NOSIZE);
             // Toggle between bitmaps
             if (hCurrentBitmap == hBitmap1) {
@@ -78,9 +73,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             }
 
             // Update memory DC with the new bitmap
-            HDC hdc = GetDC(hwnd);
+            HDC hdc3 = GetDC(hwnd);
             SelectObject(hMemDC, hCurrentBitmap); // Select the new bitmap
-            ReleaseDC(hwnd, hdc);
+            ReleaseDC(hwnd, hdc3);
 
             // Trigger a repaint
             InvalidateRect(hwnd, NULL, TRUE);
@@ -136,7 +131,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
    );
   
     //SetLayeredWindowAttributes(hwnd, 0, 200, LWA_ALPHA); // Semi-transparent
-    SetLayeredWindowAttributes(hwnd, 0, 150, LWA_ALPHA);
+    SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
  
 
     ShowWindow(hwnd, nCmdShow);
