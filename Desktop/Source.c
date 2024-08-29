@@ -43,15 +43,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         //transparentblt required msimg32.lib in linker
                 //DrawTransparentBitmap(hdc, hBitmap2, 0, 0);
      
-        HBITMAP oldHB = (HBITMAP)SelectObject(hMemDC, hCurrentBitmap);
+       /* HBITMAP oldHB = (HBITMAP)SelectObject(hMemDC, hCurrentBitmap);
         BITMAP bm;
-        GetObject(hCurrentBitmap, sizeof(BITMAP), &bm);
-   /*     TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
+        GetObject(hCurrentBitmap, sizeof(BITMAP), &bm);*/
+  
+        BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, 0, 0, SRCCOPY);
+        /*     TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
             hMemDC, 0, 0, bm.bmWidth,bm.bmHeight, RGB(255,0,255));*/
        
-        TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
+       /* TransparentBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight,
             hMemDC, 0, 0, bm.bmWidth, bm.bmHeight, RGB(255, 0, 255));
-        SelectObject(hMemDC, oldHB);
+        SelectObject(hMemDC, oldHB);*/
         
         EndPaint(hwnd, &ps);
         
@@ -131,7 +133,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
    );
   
     //SetLayeredWindowAttributes(hwnd, 0, 200, LWA_ALPHA); // Semi-transparent
-    SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
+    SetLayeredWindowAttributes(hwnd, RGB(255,0,255), 255, LWA_COLORKEY);
  
 
     ShowWindow(hwnd, nCmdShow);
