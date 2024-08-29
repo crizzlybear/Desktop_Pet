@@ -7,6 +7,26 @@ HBITMAP hBitmap1;   // First bitmap
 HBITMAP hBitmap2;   // Second bitmap
 HBITMAP hCurrentBitmap; // Currently selected bitmap
 HBITMAP hOldBitmap; // Old bitmap in memory DC
+void DrawTransparentBitmap(HDC hdcDest, HBITMAP hBitmap, int xDest, int yDest) {
+    // Create a compatible memory DC
+    HDC hdcMem = CreateCompatibleDC(hdcDest);
+
+    // Select the bitmap into the memory DC
+    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
+
+    // Get bitmap dimensions
+    BITMAP bm;
+    GetObject(hBitmap, sizeof(BITMAP), &bm);
+
+    // Use TransparentBlt to draw the bitmap with magenta as transparent
+    TransparentBlt(hdcDest, xDest, yDest, bm.bmWidth, bm.bmHeight,
+        hdcMem, 0, 0, bm.bmWidth, bm.bmHeight,
+        RGB(255,0,255));
+
+    // Clean up
+    SelectObject(hdcMem, hOldBitmap);
+    DeleteDC(hdcMem);
+}
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -34,8 +54,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         HDC hdc = BeginPaint(hwnd, &ps);
 
         // Draw the current bitmap
-        BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, 0, 0, SRCCOPY);
-
+        //BitBlt is copying the pixels from the source device context(hMemDC) to the destination device context(hdc) for the rectangle that needs to be redrawn
+        //BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, 0, 0, SRCCOPY);
+        //transparentblt required msimg32.lib in linker
+       
+       DrawTransparentBitmap(hdc, hBitmap2, 0, 0);
+      
+        
+        
         EndPaint(hwnd, &ps);
         break;
     }
