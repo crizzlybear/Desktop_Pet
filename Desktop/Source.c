@@ -1,5 +1,5 @@
 #include <windows.h>
-
+#include <stdio.h>
 int xPos = 50;
 int yPos = 50;
 #define TIMER_ID 1
@@ -10,7 +10,7 @@ HBITMAP hBitmap1;   // First bitmap
 HBITMAP hOldBitmap; // Old bitmap in memory DC
 int xx = 0;
 
-
+boolean drag = FALSE;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
     
@@ -51,7 +51,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 xPos = xPos + 10;
             }
             
-            SetWindowPos(hwnd, HWND_TOP, xPos, 50, 100, 100, SWP_NOZORDER | SWP_NOSIZE);
+            SetWindowPos(hwnd, HWND_TOP, xPos, yPos, 100, 100, SWP_NOZORDER | SWP_NOSIZE);
+           /* ClientToScreen(hwnd, &rect);
+            MoveWindow(hwnd, xPos, yPos, 100, 100, TRUE);*/
             // Toggle between bitmaps
            
             if (xx == 0) {
@@ -65,14 +67,48 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             InvalidateRect(hwnd, NULL, TRUE);
             break;
         }
-    case WM_LBUTTONDOWN: {
+    case WM_RBUTTONDOWN: {
         // Close the window on left mouse button click
         MessageBoxA(NULL,"clicked","T", MB_OK);
                     
         DestroyWindow(hwnd);
+        /*GetWindowRect(hwnd, &rect);
+        char buffer[256];
+        snprintf(buffer, sizeof(buffer), "Position:\nLeft: %ld\nTop: %ld\nRight: %ld\nBottom: %ld",
+            rect.left, rect.top, rect.right, rect.bottom);
+        MessageBoxA(hwnd, buffer, "Window Position", MB_OK | MB_ICONINFORMATION);*/
                    
         break;
     }
+    case WM_LBUTTONDOWN:
+        drag = TRUE;
+        SetCapture(hwnd);
+        break;
+    case WM_LBUTTONUP:
+        ReleaseCapture();
+        drag = FALSE;
+        break;
+    case WM_MOUSEMOVE:
+        //https://codingmisadventures.wordpress.com/2009/03/06/dragging-or-moving-a-window-using-mouse-win32/
+        if (drag)
+        {
+            RECT mainWindowRect;
+            POINT pos;
+            int windowWidth, windowHeight;
+
+            pos.x = (int)(short)LOWORD(lParam);
+            pos.y = (int)(short)HIWORD(lParam);
+
+            GetWindowRect(hwnd, &mainWindowRect);
+            windowHeight = mainWindowRect.bottom - mainWindowRect.top;
+            windowWidth = mainWindowRect.right - mainWindowRect.left;
+
+            ClientToScreen(hwnd, &pos);
+            MoveWindow(hwnd, pos.x, pos.y, windowWidth, windowHeight, TRUE);
+            xPos = pos.x;
+            yPos = pos.y;
+        }
+        break;
     case WM_DESTROY:
         // Clean up
         SelectObject(hMemDC, hOldBitmap); // Restore the old bitmap
@@ -107,7 +143,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
        "SimpleTransparentClass",
        "Transparent Window",
        WS_POPUP, //for a bordered window use: WS_OVERLAPPEDWINDOW,
-       100, 100, 100, 100,
+       50, 50, 100, 100,
        NULL,
        NULL,
        hInstance,
