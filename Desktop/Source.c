@@ -2,6 +2,7 @@
 #include <stdio.h>
 int xPos = 50;
 int yPos = 50;
+boolean move = TRUE;
 #define TIMER_ID 1
 HDC hMemDC;         // Memory device context
 HBITMAP hBitmap1;   // First bitmap
@@ -9,11 +10,13 @@ HBITMAP hBitmap1;   // First bitmap
 /*HBITMAP hCurrentBitmap;*/ // Currently selected bitmap
 HBITMAP hOldBitmap; // Old bitmap in memory DC
 int xx = 0;
+int yy = 0;
 
 boolean drag = FALSE;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
-    
+
+    int rand = 0;
     switch (uMsg) {
     case WM_CREATE:
     {
@@ -22,7 +25,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Load and select bitmaps
         
-        hBitmap1 = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dogsprite.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
+        hBitmap1 = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dogmap.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
         //hBitmap2 = (HBITMAP)LoadImage(NULL, L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dog_profileBMP2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
 
         // Select the first bitmap into the memory DC
@@ -38,7 +41,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps); //BeginPaint: Prepares the window for painting and retrieves a device context (HDC).
   
-        BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, xx, 0, SRCCOPY);
+        BitBlt(hdc, 0, 0, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, xx, yy, SRCCOPY);
    
         
         EndPaint(hwnd, &ps);
@@ -47,7 +50,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     }
     case WM_TIMER:
         if (wParam == TIMER_ID) {
-            if (xPos < desktopWidth) {
+            if (xPos < desktopWidth-100 &&move==TRUE) {
                 xPos = xPos + 10;
             }
             
@@ -61,6 +64,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             }
             else {
                 xx = 0;
+            }
+            
+            if (yPos % 2 ==0) {
+                yy = 100;
+                move = TRUE;
+            }
+            else if (yPos % 3 == 0) {
+                yy = 200;
+                move = FALSE;
+                
+            }
+            else {
+                yy = 0;
+                move = FALSE;
+             
             }
             
             // Trigger a repaint
