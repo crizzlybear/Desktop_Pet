@@ -18,6 +18,7 @@ int yy = 0;
 int walk = 10;
 int r=0;
 boolean drag = FALSE;
+int neg = -1;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -31,7 +32,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Load and select bitmaps
         
-        hBitmap1 = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dogmap2.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
+        hBitmap1 = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dogmap3.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
         //hBitmap2 = (HBITMAP)LoadImage(NULL, L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dog_profileBMP2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
 
         // Select the first bitmap into the memory DC
@@ -40,7 +41,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         ReleaseDC(hwnd, hdc2); // Release the window DC
 
         SetTimer(hwnd, TIMER_ID, 500, NULL); // Set up a timer
-        SetTimer(hwnd, TIMER_ID2, 6000, NULL); // Set up a timer
+        SetTimer(hwnd, TIMER_ID2, 3000, NULL); // Set up a timer
         break;
     }
     case WM_PAINT: // Triggered when the window needs to be repainted. This happens when the window is first shown, when it is resized, or when InvalidateRect is called.
@@ -59,6 +60,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         if (wParam == TIMER_ID) {
             if (xPos < desktopWidth-100 && move==TRUE) {
                 xPos = xPos + walk;
+                yPos = yPos + (walk / 2)* neg;
             }
             
             SetWindowPos(hwnd, HWND_TOP, xPos, yPos, 100, 100, SWP_NOZORDER | SWP_NOSIZE);
@@ -70,26 +72,44 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             }
         }
         if (wParam == TIMER_ID2) {
-            r = rand() % (4+1);
+            if (r>=3) {
+                r = rand() % (6-2+1) +2; //2-6
+            }
+            else { r = rand() % (4 + 1); }//0-4
             
             switch (r) {
+          
             case 1:
-                yy = 100;
-                move = TRUE;
-                walk = 10;
+                yy = 200;//sleep right
+                move = FALSE;
+                neg = 1;
                 break;
             case 2:
-                yy = 200;
-                move = FALSE;
+                yy = 100;//walk right
+                move = TRUE;
+                walk = 10;
+                
                 break;
             case 3:
-                yy = 300;
+                yy = 0;//standing
+                move = FALSE;
+                neg = -1;
+                break;
+            case 4:
+                yy = 300;//walk left
                 move = TRUE;
                 walk = -10;
+    
+                break;
+            case 5:
+                yy = 400;//sleep left
+                move = FALSE;
+                neg = 1;
                 break;
             default:
-                yy = 0;
+                yy = 0;//standing
                 move = FALSE;
+                neg = -1;
                 break;
             }
 
