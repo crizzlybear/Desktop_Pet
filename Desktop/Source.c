@@ -22,7 +22,7 @@ int neg = -1;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
-    
+    int desktopHeight = GetSystemMetrics(SM_CYSCREEN);
     srand(time(0));
     switch (uMsg) {
     case WM_CREATE:
@@ -40,8 +40,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         ReleaseDC(hwnd, hdc2); // Release the window DC
 
-        SetTimer(hwnd, TIMER_ID, 500, NULL); // Set up a timer
-        SetTimer(hwnd, TIMER_ID2, 3000, NULL); // Set up a timer
+        //SetTimer(hwnd, TIMER_ID, 500, NULL); // Set up a timer
+        //SetTimer(hwnd, TIMER_ID2, 3000, NULL); // Set up a timer
+
+        SetTimer(hwnd, TIMER_ID, 100, NULL); // Set up a timer
+        SetTimer(hwnd, TIMER_ID2, 1000, NULL); // Set up a timer
         break;
     }
     case WM_PAINT: // Triggered when the window needs to be repainted. This happens when the window is first shown, when it is resized, or when InvalidateRect is called.
@@ -58,11 +61,57 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     }
     case WM_TIMER:{
         if (wParam == TIMER_ID) {
-            if (xPos < desktopWidth-100 && move==TRUE) {
+            //if (xPos < desktopWidth-100 && move==TRUE) {
+            //    xPos = xPos + walk;
+            //    yPos = yPos + (walk / 2)* neg;
+            //}
+            //else if(xPos >= desktopWidth - 100 && move==TRUE){
+            //    yy = 300;//walk left
+            //    move = TRUE;
+            //    walk = -10;
+            //    xPos = xPos + walk;
+            //    yPos = yPos + (walk / 2) * neg;
+            //    
+            //}
+            
+            if (move) {
                 xPos = xPos + walk;
-                yPos = yPos + (walk / 2)* neg;
+                yPos = yPos + ((walk / 2) * neg);
+                if (xPos >= desktopWidth - 100) {
+                    //MessageBoxA(NULL,"out", "Right", MB_OK);
+                    yy = 300;//walk left
+                    walk = -10;
+
+                }
+                else if (xPos <= 0) {
+                    //MessageBoxA(NULL, "out", "Left", MB_OK);
+                    yy = 100;//walk right
+                    walk = 10;
+
+                }
+                else if (yPos <= 0) {
+                    //MessageBoxA(NULL, "out", "Top", MB_OK);
+                   
+                    yy = 100;//walk right
+                    walk = 10;
+                    neg = 1;
+
+                }
+                else if (yPos >= desktopHeight -50) {
+                    //MessageBoxA(NULL, "out", "Bot", MB_OK);
+                    //walk = 10;
+                    
+                    yy = 100;
+                    walk = 10;
+                    neg = -1;
+
+                }
+                
+                   
+                
             }
             
+
             SetWindowPos(hwnd, HWND_TOP, xPos, yPos, 100, 100, SWP_NOZORDER | SWP_NOSIZE);
             if (xx == 0) {
                 xx = xx + 100;
@@ -73,7 +122,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         }
         if (wParam == TIMER_ID2) {
             if (r>=3) {
-                r = rand() % (6-2+1) +2; //2-6
+                r = rand() % (7-2+1) +2; //2-7
             }
             else { r = rand() % (4 + 1); }//0-4
             
@@ -82,7 +131,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             case 1:
                 yy = 200;//sleep right
                 move = FALSE;
-                neg = 1;
+                neg = -1;
                 break;
             case 2:
                 yy = 100;//walk right
@@ -104,12 +153,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             case 5:
                 yy = 400;//sleep left
                 move = FALSE;
-                neg = 1;
+                neg = -1;
                 break;
             default:
                 yy = 0;//standing
                 move = FALSE;
-                neg = -1;
+                neg = 1;
                 break;
             }
 
