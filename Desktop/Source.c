@@ -25,7 +25,7 @@ boolean bump = FALSE;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
     int desktopHeight = GetSystemMetrics(SM_CYSCREEN);
-    srand(time(0));
+    srand((unsigned int)time(NULL));
     switch (uMsg) {
     case WM_CREATE:
     {
@@ -116,10 +116,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         if (wParam == TIMER_ID2) {
             n = rand() % (2 + 1);//0,1,2
             neg = nArray[n];
-            if (r ==2 || r==1) {
+            if ((r ==2) || (r==1)) {
                 r = rand() % (3-1+1) +1; //1,2,3  
             }
-            else if (r == 4 | r==5) {
+            else if ((r == 4) || (r==5)) {
                 r = rand() % (5 - 3 + 1) + 3; //3,4,5
             }
             else { r = rand() % (6 -1+ 1) +1; }//1,2,3,4,5,6
@@ -242,17 +242,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
  
 //SetWindowPos(hwnd, HWND_TOP, x, 50, 200, 150, SWP_NOZORDER | SWP_NOSIZE);
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
     WNDCLASS wc = {0};
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
-    wc.lpszClassName = "SimpleTransparentClass";
+    wc.lpszClassName = L"SimpleTransparentClass";
     RegisterClass(&wc);
 
     HWND hwnd = CreateWindowEx(
         WS_EX_LAYERED| WS_EX_TOOLWINDOW,//removing WS_EX_TRANSPARENT works
-       "SimpleTransparentClass",
-       "Transparent Window",
+       L"SimpleTransparentClass",
+       L"Transparent Window",
        WS_POPUP, //for a bordered window use: WS_OVERLAPPEDWINDOW,
        50, 50, 100, 100,
        NULL,
