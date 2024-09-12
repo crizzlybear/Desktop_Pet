@@ -225,7 +225,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     RegisterClass(&wc);
 
     HWND hwnd = CreateWindowEx(
-        WS_EX_LAYERED| WS_EX_TOOLWINDOW,//removing WS_EX_TRANSPARENT works
+        WS_EX_LAYERED,//removing | WS_EX_TOOLWINDOW so taskbar button shows,//removing WS_EX_TRANSPARENT works
        L"SimpleTransparentClass",
        L"Transparent Window",
        WS_POPUP, //for a bordered window use: WS_OVERLAPPEDWINDOW,
