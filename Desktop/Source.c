@@ -34,7 +34,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         HDC hdc2 = GetDC(hwnd); // Get the window device context
         hMemDC = CreateCompatibleDC(hdc2); // Create a compatible memory DC
         // Load and select bitmaps 
-        hBitmap1 = (HBITMAP)LoadImage(NULL,L"\\\\?\\C:\\Users\\chris\\OneDrive\\Pictures\\dogmap6.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);// the \\?\ is used to bypass path limit of olderapis
+        hBitmap1 = (HBITMAP)LoadImage(NULL,L"SpriteSheet.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 
         // Select bitmap into the memory DC
         hOldBitmap = SelectObject(hMemDC, hBitmap1);
@@ -166,7 +166,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     }
     case WM_RBUTTONDOWN: {
         // Close the window on right mouse button click
-        MessageBoxA(NULL,"Closing Desktop Pet ...","Goodbye", MB_OK);             
+        MessageBoxA(NULL,"Closing Desktop Pet...","Goodbye", MB_OK);             
         DestroyWindow(hwnd);
         break;
     }
