@@ -131,7 +131,14 @@
     <ClCompile Include="Source.c" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Heart.ico" />
     <Image Include="SpriteSheet.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Desktop.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
