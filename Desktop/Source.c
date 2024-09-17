@@ -48,7 +48,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     case WM_PAINT: 
     {
         // WM_PAINT: Triggered when the window needs to be repainted. 
-        // ie. when the window is first shown, when it is resized, or when InvalidateRect is called.
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps); //BeginPaint: Prepares the window for painting and retrieves a device context (HDC).
   
@@ -227,7 +226,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     HWND hwnd = CreateWindowEx(
         WS_EX_LAYERED,//removing | WS_EX_TOOLWINDOW so taskbar button shows,//removing WS_EX_TRANSPARENT works
        L"SimpleTransparentClass",
-       L"Transparent Window",
+       L"Desktop Pet",
        WS_POPUP, //for a bordered window use: WS_OVERLAPPEDWINDOW,
        50, 50, 100, 100, //xPos,yPos,width,height
        NULL,
